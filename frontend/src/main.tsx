@@ -3,8 +3,12 @@ import { createRoot } from "react-dom/client";
 import { Copy, Play, Send, Smile, Users } from "lucide-react";
 import "./styles.css";
 
-const API = (import.meta.env.VITE_API_BASE_URL as string | undefined) || "http://127.0.0.1:8000";
-const WS = (import.meta.env.VITE_WS_BASE_URL as string | undefined) || "ws://127.0.0.1:8000";
+const API = import.meta.env.PROD
+  ? ""
+  : ((import.meta.env.VITE_API_BASE_URL as string | undefined) || "http://127.0.0.1:8000");
+const WS_BASE = import.meta.env.PROD
+  ? `${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}`
+  : ((import.meta.env.VITE_WS_BASE_URL as string | undefined) || "ws://127.0.0.1:8000");
 const REACTIONS = [
   { emoji: "👍", label: "好牌" },
   { emoji: "😅", label: "尴尬" },
@@ -102,7 +106,7 @@ function App() {
 
   useEffect(() => {
     if (!session) return;
-    const socket = new WebSocket(`${WS}/ws/${session.code}/${session.playerId}`);
+    const socket = new WebSocket(`${WS_BASE}/ws/${session.code}/${session.playerId}`);
     wsRef.current = socket;
     socket.onmessage = (event) => {
       const payload = JSON.parse(event.data);

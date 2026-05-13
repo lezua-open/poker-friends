@@ -7,6 +7,7 @@ from typing import Any
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .game.engine import GameError
@@ -191,3 +192,8 @@ async def auto_action_on_timeout(code: str, deadline: float) -> None:
         await broadcast(room.code)
     except (asyncio.CancelledError, GameError):
         return
+
+
+static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
+if os.path.isdir(static_dir):
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
